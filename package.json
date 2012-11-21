@@ -1,0 +1,31 @@
+{
+  "name": "buffered-stream",
+  "version": "0.0.1",
+  "description": "A write and read stream with bufferisation",
+  "homepage": "http://www.adaltas.com/projects/node-buffered-stream/",
+  "author": "David Worms <david@adaltas.com>",
+  "contributors": [
+  ],
+  "engines": {
+    "node": ">= 0.6.0"
+  },
+  "keywords": [
+    "node",
+    "stream",
+    "buffer"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/wdavidw/node-buffered-stream.git"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "coffee-script": "latest",
+    "mocha": "latest",
+    "should": "latest"
+  },
+  "optionalDependencies": {},
+  "scripts": {
+    "test": "make test"
+  }
+}

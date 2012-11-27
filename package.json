@@ -1,7 +1,7 @@
 {
   "name": "buffered-stream",
   "version": "0.0.1",
-  "description": "A write and read stream with bufferisation",
+  "description": "A writable and readable stream with bufferisation",
   "homepage": "http://www.adaltas.com/projects/node-buffered-stream/",
   "author": "David Worms <david@adaltas.com>",
   "contributors": [

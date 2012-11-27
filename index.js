@@ -1,2 +1,6 @@
 
-module.exports = require('./lib/buffered-stream');
+var FixedBufferedStream = require('./lib/FixedBufferedStream')
+
+module.exports = function(){
+  return new FixedBufferedStream;
+}

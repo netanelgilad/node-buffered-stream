@@ -7,7 +7,7 @@ BufferedStream = (size = 1024 * 1024)->
   @size = size
   @buffer = new Buffer size
   @bufferPos = 0
-  @
+  stream.call(this);
 
 BufferedStream.prototype.__proto__ = stream.prototype
 

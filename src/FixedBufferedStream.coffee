@@ -16,7 +16,7 @@ BufferedStream.prototype.write = (data) ->
   unless Buffer.isBuffer data
     # Convert it to a buffer
     data = new Buffer data
-  dataWritten = Math.min(@size - @bufferPos, data.length)
+  dataWritten = Math.min @size - @bufferPos, data.length
   data.copy @buffer, @bufferPos, 0, dataWritten unless dataWritten is 0
   @bufferPos += dataWritten
   if dataWritten != data.length
@@ -24,10 +24,10 @@ BufferedStream.prototype.write = (data) ->
     buffer = new Buffer @bufferPos
     @buffer.copy buffer, 0, 0, @bufferPos
     @emit 'data', buffer
-    # copy the rest of the data into the internal buffer
+    # Copy the rest of the data into the internal buffer
     data.copy @buffer, 0, dataWritten, data.length
     @bufferPos = data.length - dataWritten
-  @paused
+  return not @paused
 
 BufferedStream.prototype.pause = (data) ->
   @paused = true
@@ -41,6 +41,12 @@ BufferedStream.prototype.end = ->
   @writable = false
   @readable = false
   @emit 'end'
+
+# BufferedStream.prototype.pipe = (dest) ->
+#   @dest = dest
+#   dest.on 'error', (err) ->
+#     console.log err
+#   stream.prototype.pipe.apply @, arguments
 
 module.exports = BufferedStream
 

@@ -1,10 +1,34 @@
 
 
 fs = require 'fs'
+{exec} = require 'child_process'
 stream = require 'stream'
+should = require 'should'
 each = require 'each'
 pad = require 'pad'
-buffered = require '..'
+
+###########################################################################################
+
+# lines = 100000
+# md5 = '9229fad768f525f6cac64bd158f6e022'
+lines = 1000000
+md5 = 'e837b60bbab8cb38259ff7b135a98aba'
+sizes = [
+  0
+  64
+  128
+  256
+  512
+  1024
+  1024*1024
+  1024*1024*4
+  1024*1024*16
+  1024*1024*64
+  1024*1024*128
+]
+times = 5
+
+BufferedStream = require "../src/FixedBufferedStream"
 
 ###########################################################################################
 
@@ -18,8 +42,8 @@ Generator.prototype.__proto__ = stream.prototype
 Generator.prototype.resume = ->
   @paused = false
   while not @paused and @readable
-    return @destroy() if @count++ is 100000
-    @emit 'data', '♥✈☺♬☑♠☎☻♫☒♤☤☹♪♀✩✉☠✔♂★✇♺✖♨❦☁✌♛❁☪☂✏♝❀☭☃☛♞✿☮☼☚♘✾☯☾☝♖✽✝☄☟♟✺☥✂✍♕✵\n'
+    return @destroy() if @count++ is lines
+    @emit 'data', '♥✈☺♬☑♠☎☻♫☒♤☤☹♪♀✩✉☠✔♂★✇♺♨❦☁✌❁☂♝❀☭☃\n'
 
 Generator.prototype.pause = ->
   @paused = true
@@ -51,7 +75,7 @@ pretty =
 run = (size, callback) ->
   # Prepare the pipe
   input = new Generator
-  buffer = buffered size
+  buffer = new BufferedStream size
   output = fs.createWriteStream "#{__dirname}/speed.#{pretty.bytes size}.out"
   # Call the pipe
   input.pipe(buffer).pipe(output)
@@ -61,30 +85,23 @@ run = (size, callback) ->
   output.on 'close', ->
     callback()
 
-each([
-  0
-  64
-  128
-  256
-  512
-  1024
-  1024*1024
-  1024*1024*4
-  1024*1024*16
-  1024*1024*64
-  1024*1024*128
-])
+check = (size, callback) ->
+  exec "md5 #{__dirname}/speed.#{pretty.bytes(size).replace(' ','\\ ')}.out", (err, stdout, stderr) ->
+    /\ (\w*)$/.exec(stdout.trim())[1].should.eql md5
+    callback()
+
+each(sizes)
 .on 'item', (next, size) ->
-  # Timer
   time = Date.now()
   each()
-  .times(3)
+  .times(times)
   .on 'item', (next) ->
-    run size, next
+    run size, ->
+      check size, next
   .on 'error', ->
     next()
   .on 'end', ->
-    console.log pad(pretty.bytes(size), 7), ':', pretty.time((Date.now()-time)/3)
+    console.log pad(pretty.bytes(size), 7), ':', pretty.time((Date.now()-time)/times)
     next()
 .on 'error', (e) ->
   console.log e

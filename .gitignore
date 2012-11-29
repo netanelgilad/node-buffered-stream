@@ -3,3 +3,4 @@ node_modules
 !.gitignore
 samples/pipe.in
 samples/pipe.out
+samples/speed.*.out

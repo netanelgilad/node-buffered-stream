@@ -4,8 +4,7 @@ stream = require 'stream'
 fs = require 'fs'
 BufferedStream = if process.env.BF_COV then require '../lib-cov/FixedBufferedStream' else require '../lib/FixedBufferedStream'
 
-# file = "/tmp/buffered-stream"
-file = "#{__dirname}/fixed"
+file = "/tmp/buffered-stream"
 
 # Create an Input Stream
 Input = ->
@@ -28,16 +27,14 @@ Output.prototype.__proto__ = stream.prototype
 Output.prototype.write = ->
   @count++
   return true if Math.floor(Math.random()*10) is 0
-  self = @
-  setTimeout ->
+  setTimeout (self) ->
     self.emit 'drain'
-  , Math.floor(Math.random()*10)
+  , Math.floor(Math.random()*10), @
   false
 Output.prototype.end = ->
-  self = @
-  setTimeout ->
+  setTimeout (self) ->
     self.emit 'close'
-  , 10
+  , 10, @
 
 describe 'fixed buffered stream', ->
 
@@ -72,6 +69,22 @@ describe 'fixed buffered stream', ->
     fs.writeFile "#{file}-input", data, 'utf8', (err) ->
       input = fs.createReadStream "#{file}-input", flags: 'r'
       buffer = new BufferedStream 1024*1024
+      output = fs.createWriteStream file
+      input.pipe(buffer).pipe(output)
+      output.on 'close', ->
+        fs.readFile file, 'utf8', (err, content) ->
+          should.not.exist err
+          content.should.eql data
+          fs.unlink file, (err) ->
+            should.not.exist err
+            next()
+
+  it 'should pipe with a small buffer', (next) ->
+    data = ''
+    for i in [0...1000000] then data += "àèêûîô#{i}\n"
+    fs.writeFile "#{file}-input", data, 'utf8', (err) ->
+      input = fs.createReadStream "#{file}-input", flags: 'r'
+      buffer = new BufferedStream 1024
       output = fs.createWriteStream file
       input.pipe(buffer).pipe(output)
       output.on 'close', ->

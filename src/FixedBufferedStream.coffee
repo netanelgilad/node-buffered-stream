@@ -25,35 +25,46 @@ Performances
 
 The results presented below are obtained by running `coffee samples/speed.coffee`.
 
-Writting 100000 lines of 100 bytes (about 95 Mo)
+Writting 100000 lines of 100 bytes (about 9.5 Mo)
+
 ```
-# 0 b     : 2 s 57 ms 
-# 64 b    : 2 s 17 ms 
-# 128 b   : 2 s 32 ms 
-# 256 b   : 1 s 755 ms 
-# 512 b   : 1 s 200 ms 
-# 1 Kb    : 728 ms 
-# 1 Mb    : 266 ms 
-# 4 Mb    : 271 ms 
-# 16 Mb   : 282 ms 
-# 64 Mb   : 276 ms 
-# 128 Mb  : 279 ms
+0 b     : 2 s 54 ms 
+64 b    : 1 s 927 ms 
+128 b   : 1 s 798 ms 
+256 b   : 1 s 283 ms 
+512 b   : 817 ms 
+1 Kb    : 576 ms 
+1 Mb    : 293 ms 
+4 Mb    : 283 ms 
+16 Mb   : 273 ms 
+64 Mb   : 273 ms 
+128 Mb  : 274 ms
 ```
 
 Writting 1000000 lines of 100 bytes (about 95 Mo)
+
 ```
-0 b     : 19 s 937 ms 
-64 b    : 17 s 717 ms 
-128 b   : 16 s 743 ms 
-256 b   : 10 s 580 ms 
-512 b   : 7 s 463 ms 
-1 Kb    : 5 s 59 ms 
-1 Mb    : 2 s 470 ms 
-4 Mb    : 2 s 518 ms 
-16 Mb   : 2 s 750 ms 
-64 Mb   : 2 s 784 ms 
-128 Mb  : 2 s 637 ms
+0 b     : 20 s 454 ms 
+64 b    : 20 s 548 ms 
+128 b   : 15 s 754 ms 
+256 b   : 12 s 803 ms 
+512 b   : 7 s 626 ms 
+1 Kb    : 5 s 189 ms 
+1 Mb    : 2 s 514 ms 
+4 Mb    : 2 s 610 ms 
+16 Mb   : 2 s 771 ms 
+64 Mb   : 2 s 758 ms 
+128 Mb  : 2 s 750 ms
 ```
+
+In this test, we are reading from a custom generator 
+Readable Stream and writing to the file system. Since we 
+are writing 100 bytes lines, a buffer of 0 byte or 64 byte
+lead to the same internal behavior while a buffer of 128 bytes
+use the internal buffer but lead to similar performances. Increasing
+the buffer size increase performance until the buffer reach 1 Mo. After
+that, performance stale. Notice that in our tests, a file Readable Stream write data 
+as 1 Mo chunks as well.
 
 ###
 BufferedStream = (size = 1024) ->
@@ -100,12 +111,6 @@ BufferedStream.prototype.end = ->
   @writable = false
   @readable = false
   @emit 'end'
-
-# BufferedStream.prototype.pipe = (dest) ->
-#   @dest = dest
-#   dest.on 'error', (err) ->
-#     console.log err
-#   stream.prototype.pipe.apply @, arguments
 
 module.exports = BufferedStream
 

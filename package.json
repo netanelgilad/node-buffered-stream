@@ -24,7 +24,10 @@
     "mocha": "latest",
     "should": "latest"
   },
-  "optionalDependencies": {},
+  "optionalDependencies": {
+    "each": "latest",
+    "pad": "latest"
+  },
   "scripts": {
     "test": "make test"
   }
